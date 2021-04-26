@@ -1,4 +1,6 @@
+name: whales
 prefix: ./env
+
 channels:
   - conda-forge
   - defaults
