@@ -90,3 +90,7 @@ io/
 
 # History files
 .history
+
+#data 
+*.tif
+*.tiff
