@@ -113,3 +113,4 @@ def read_coords(label):
         centres.append([(x1+x3)//2, (y1+y3)//2])
         coords_array = np.array(coords)
     return coords_array, centres
+
