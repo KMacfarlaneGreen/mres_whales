@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from imageio import imwrite
 import matplotlib.patches as patches
+from sklearn.cluster import DBSCAN
+import json
 
 def convert_coords(image, geo_image, label, x, y): 
     
@@ -28,7 +30,59 @@ def convert_coords(image, geo_image, label, x, y):
     
     return x_pix, y_pix
 
-def save_files(image, label, info, output_dir, input_name):
+def read_coords(label):
+    coords, centres = [], []
+    
+    for object in label['features']:
+        # get coordinates of lower left & upper right corners of each bounding box
+        [[x1, y1], [x3, y3]] = object['geometry']['coordinates'][0][0], object['geometry']['coordinates'][0][2]
+        coords.append([[x1, y1], [x3, y3]])
+
+        # store centre coordinate of each bounding box for clustering
+        centres.append([(x1+x3)//2, (y1+y3)//2])
+        coords_array = np.array(coords)
+    return coords_array, centres
+
+def get_bbox_info(box_path, image, geotif):
+    
+    with open(box_path, 'r') as f:
+        label = json.load(f)
+        coords, centres = read_coords(label)
+        # convert bounding box coordinates from geographic to image-scaled
+        centres_converted = np.array([convert_coords(image, geotif, label, point[0], point[1]) for point in centres])
+    
+        coords_converted = np.array([[convert_coords(image, geotif, label, point[0][0], point[0][1]), 
+                                  convert_coords(image, geotif, label, point[1][0], point[1][1])] 
+                            for point in coords
+                       ])
+            ## DB-Scan algorithm for clustering ##
+    
+        eps = 250 # threshold distance between two points to be in the same 'neighbourhood'
+        dbscan = DBSCAN(min_samples=1, eps=eps)
+        y = dbscan.fit_predict(centres_converted)
+
+        # storing coordinates of clusters, relative to boundaries of image (not tile)
+        info = {}
+        for i in range(y.max()+1):
+        
+            # calculate the max and min coords of all the bounding boxes in the cluster
+            box_centres = centres_converted[np.where(y==i)[0]]
+            min_x, max_x = box_centres[:, 0].min(), box_centres[:, 0].max()
+            min_y, max_y = box_centres[:, 1].min(), box_centres[:, 1].max()
+        
+            # assign each cluster of objects as an item
+            item = {}
+            item['centre'] = [(min_x+max_x)//2, (min_y+max_y)//2]
+            item['object_boxes'] = coords_converted[np.where(y==i)[0]].tolist()
+            item['name'] = "whale"
+            info[i] = item
+        
+            # add a line here to generalize to multiple categories:
+            # if label['features']['NumShip'] == ... :
+        return(info)
+
+
+def save_files(image,info, output_dir, input_name):
     
     '''
     for each cluster of bounding boxes, save a 512x512 image chip as .png
@@ -39,7 +93,7 @@ def save_files(image, label, info, output_dir, input_name):
     fig = plt.figure(figsize=(20, 100))
     n_tiles = len(info.keys())
     
-    for i,k in enumerate(info.keys()):
+    for i, k in enumerate(info.keys()):     
                              
         # get centre of each bounding box cluster
         x, y = info[k]['centre'][0], info[k]['centre'][1] # in pixels, with origin in lower left
@@ -61,7 +115,7 @@ def save_files(image, label, info, output_dir, input_name):
 
         imwrite(image_name, image_tile)
 
-        ax = fig.add_subplot(n_tiles, 4, i+1)
+        ax = fig.add_subplot(n_tiles, 4, k+1)
         ax.imshow(image_tile)
                 
         # save label file
@@ -88,7 +142,7 @@ def save_files(image, label, info, output_dir, input_name):
             # add bounding boxes to tile subplot
             rect = patches.Rectangle((x1_rel, y1_rel), box_width, box_height, linewidth=1, edgecolor='r', facecolor='none')
             ax.add_patch(rect)
-            title = str(i+1)
+            title = str(k+1)
             ax.set_title(title)
 
             # write label to .txt file
@@ -101,16 +155,5 @@ def save_files(image, label, info, output_dir, input_name):
         file.close()
     plt.show()
 
-def read_coords(label):
-    coords, centres = [], []
-    
-    for object in label['features']:
-        # get coordinates of lower left & upper right corners of each bounding box
-        [[x1, y1], [x3, y3]] = object['geometry']['coordinates'][0][0], object['geometry']['coordinates'][0][2]
-        coords.append([[x1, y1], [x3, y3]])
 
-        # store centre coordinate of each bounding box for clustering
-        centres.append([(x1+x3)//2, (y1+y3)//2])
-        coords_array = np.array(coords)
-    return coords_array, centres
 
