@@ -112,6 +112,9 @@ def save_files(image,info, output_dir, input_name):
         #image_str = file_path + '/' + image_name
         # it goes left-top-right-bottom where bottom=top+height (i.e. the origin is in the top left corner)
         image_tile = image.crop([left_lim, top_lim, right_lim, bottom_lim])
+        #print(type(image_tile))
+        #image_tile_array = np.array(image_tile)
+        #print(image_tile_array.shape)
 
         imwrite(image_name, image_tile)
 
