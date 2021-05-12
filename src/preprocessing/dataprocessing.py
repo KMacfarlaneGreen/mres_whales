@@ -153,10 +153,47 @@ def save_files(image,info, output_dir, input_name):
             ## (add a line here for multiple categoties - if info[k]['name'] = 'ship': lab = ...)
             
             #
-            lab = '0 {} {} {} {}\n'.format(abs(box_centre_x/tile_width), abs(box_centre_y/tile_height), abs(box_width/tile_width), abs(box_height/tile_height))
+            if info[k]['name'] == 'whale' : 
+                lab = '0 {} {} {} {}\n'.format(abs(box_centre_x/tile_width), abs(box_centre_y/tile_height), abs(box_width/tile_width), abs(box_height/tile_height))
+            if info[k]['name'] == 'not-whale' :
+                lab = '1 {} {} {} {}\n'.format(abs(box_centre_x/tile_width), abs(box_centre_y/tile_height), abs(box_width/tile_width), abs(box_height/tile_height))
             file.write(lab)
         file.close()
     plt.show()
 
+def get_nonwhale_bbox_info(box_path, image, geotif):
+    
+    with open(box_path, 'r') as f:
+        label = json.load(f)
+        coords, centres = read_coords(label)
+        # convert bounding box coordinates from geographic to image-scaled
+        centres_converted = np.array([convert_coords(image, geotif, label, point[0], point[1]) for point in centres])
+    
+        coords_converted = np.array([[convert_coords(image, geotif, label, point[0][0], point[0][1]), 
+                                  convert_coords(image, geotif, label, point[1][0], point[1][1])] 
+                            for point in coords
+                       ])
+            ## DB-Scan algorithm for clustering ##
+    
+        eps = 250 # threshold distance between two points to be in the same 'neighbourhood'
+        dbscan = DBSCAN(min_samples=1, eps=eps)
+        y = dbscan.fit_predict(centres_converted)
 
+        # storing coordinates of clusters, relative to boundaries of image (not tile)
+        info = {}
+        for i in range(y.max()+1):
+        
+            # calculate the max and min coords of all the bounding boxes in the cluster
+            box_centres = centres_converted[np.where(y==i)[0]]
+            min_x, max_x = box_centres[:, 0].min(), box_centres[:, 0].max()
+            min_y, max_y = box_centres[:, 1].min(), box_centres[:, 1].max()
+        
+            # assign each cluster of objects as an item
+            item = {}
+            item['centre'] = [(min_x+max_x)//2, (min_y+max_y)//2]
+            item['object_boxes'] = coords_converted[np.where(y==i)[0]].tolist()
+            item['name'] = "not-whale"
+            info[i] = item
+
+        return(info)
 
