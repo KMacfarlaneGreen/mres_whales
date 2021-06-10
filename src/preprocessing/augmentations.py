@@ -81,11 +81,11 @@ def generate_augmentations(image_path, label_path, output_dir, image_id, n): # i
         A.HorizontalFlip(p=0.5),
         A.VerticalFlip(p=0.5),
         A.Rotate(limit=(-180,180), always_apply=True),
-        A.Blur(p=0.5),
-        A.RandomBrightness(p=0.5),
-        A.RandomContrast(p=0.5),
-        A.GaussianBlur(p=0.5),
-        A.GaussNoise(p=0.5)
+        #A.Blur(p=0.5),
+        #A.RandomBrightness(p=0.5),
+        #A.RandomContrast(p=0.5),
+        #A.GaussianBlur(p=0.5),
+        #A.GaussNoise(p=0.5)
         ])
 
         augmented = aug(**annotations)

@@ -7,7 +7,7 @@ import matplotlib.patches as patches
 from PIL import Image
 import rasterio
 import tifffile as tiff
-from src.preprocessing.dataprocessing import convert_coords, save_files, read_coords
+from src.preprocessing.satellitedataprocessing import convert_coords, save_files, read_coords
 
 def plot_rgb_hist(image_array, lim):# tuple to select colors of each channel line
     '''Plot histogram of rgb images'''
