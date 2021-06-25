@@ -56,6 +56,15 @@ def plot_rgb_boxes(file_path, box_path, array_rgb):
             # add bounding box to figure
             rect = patches.Rectangle(bottom_left, width, height, linewidth=1, edgecolor='r', facecolor='none')
             ax1.add_patch(rect)
-        
+        #plt.xlim([12000,22000])
+        #plt.ylim([12000,22000])
+        #plt.xticks([]),plt.yticks([])
+        #image_format_svg = 'svg' # e.g .png, .svg, etc.
+        #image_name_svg = 'liebre_report_plot.svg'
+        #image_format_png = 'png' # e.g .png, .svg, etc.
+        #image_name_png = 'liebre_report_plot.png'
+
+        #fig1.savefig(image_name_svg, format=image_format_svg, dpi=200)
+        #fig1.savefig(image_name_png, format=image_format_png, dpi=200)
         plt.show
 

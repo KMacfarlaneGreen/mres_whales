@@ -8,7 +8,7 @@ def rgb_array(image_path):
     green = rasterio_image.read(2)
     blue = rasterio_image.read(3)
 
-    rgb_image_array =np.dstack((red,green,blue))
+    rgb_image_array =np.dstack((blue,green,red)) 
 
     return rgb_image_array
 
