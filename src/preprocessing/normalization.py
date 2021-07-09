@@ -13,6 +13,7 @@ def rgb_array(image_path):
     return rgb_image_array
 
 def max_norm(image_path):
+    '''Normalize image scaled using max value'''
     rasterio_image = rasterio.open(image_path)
     red = rasterio_image.read(1)
     green = rasterio_image.read(2)
@@ -28,6 +29,7 @@ def max_norm(image_path):
     return rgb_max_norm 
 
 def perc_norm(image_path):
+    '''Normalize image scaled using 95th percentile'''
     rasterio_image = rasterio.open(image_path)
     red = rasterio_image.read(1)
     green = rasterio_image.read(2)

@@ -31,6 +31,7 @@ def convert_coords(image, geo_image, label, x, y):
     return x_pix, y_pix
 
 def read_coords(label):
+    '''Read a file containing bounding boxes into coordinate arrays'''
     coords, centres = [], []
     
     for object in label['features']:
@@ -44,7 +45,8 @@ def read_coords(label):
     return coords_array, centres
 
 def get_bbox_info(box_path, image, geotif):
-    
+    '''Convert bounding box file to correct image format'''
+
     with open(box_path, 'r') as f:
         label = json.load(f)
         coords, centres = read_coords(label)
@@ -55,7 +57,8 @@ def get_bbox_info(box_path, image, geotif):
                                   convert_coords(image, geotif, label, point[1][0], point[1][1])] 
                             for point in coords
                        ])
-            ## DB-Scan algorithm for clustering ##
+        
+        ## DB-Scan algorithm for clustering ##
     
         eps = 250 # threshold distance between two points to be in the same 'neighbourhood'
         dbscan = DBSCAN(min_samples=1, eps=eps)
@@ -76,9 +79,7 @@ def get_bbox_info(box_path, image, geotif):
             item['object_boxes'] = coords_converted[np.where(y==i)[0]].tolist()
             item['name'] = "whale"
             info[i] = item
-        
-            # add a line here to generalize to multiple categories:
-            # if label['features']['NumShip'] == ... :
+
         return(info)
 
 
@@ -102,19 +103,15 @@ def save_files(image,info, output_dir, input_name):
         # set limits since tile boundaries cannot exceed image boundaries
         width, height = image.getbbox()[2], image.getbbox()[3]      #2,3 are right and lower bounds
         
-        left, top, right, bottom = x-256, (height-y)-256, x+256, (height-y)+256 # in accordance with PIL library: in pix, origin top left
+        left, top, right, bottom = x-256, (height-y)-256, x+256, (height-y)+256 
                
         left_lim, top_lim = max(0,int(left)), max(0,int(top))
         right_lim, bottom_lim = min(width, int(right)), min(height, int(bottom))
                
         # crop and save image tiles
         image_name = '{}/{}_{}.png'.format(output_dir, input_name, k)
-        #image_str = file_path + '/' + image_name
-        # it goes left-top-right-bottom where bottom=top+height (i.e. the origin is in the top left corner)
         image_tile = image.crop([left_lim, top_lim, right_lim, bottom_lim])
-        #print(type(image_tile))
-        #image_tile_array = np.array(image_tile)
-        #print(image_tile_array.shape)
+
 
         imwrite(image_name, image_tile)
 
@@ -149,10 +146,7 @@ def save_files(image,info, output_dir, input_name):
             ax.set_title(title)
 
             # write label to .txt file
-            ## 0 means first object i.e. whale
-            ## (add a line here for multiple categoties - if info[k]['name'] = 'ship': lab = ...)
             
-            #
             if info[k]['name'] == 'whale' : 
                 lab = '0 {} {} {} {}\n'.format(abs(box_centre_x/tile_width), abs(box_centre_y/tile_height), abs(box_width/tile_width), abs(box_height/tile_height))
             if info[k]['name'] == 'not-whale' :

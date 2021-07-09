@@ -108,7 +108,7 @@ def generate_augmentations(image_path, label_path, output_dir, image_id, n): # i
             box_centre_x = x1+box_width/2
             box_centre_y = y1+box_height/2
 
-            if augmented['category_id'][0] == 0:    #need to add in another loop if want to perform for images containing both categories
+            if augmented['category_id'][0] == 0:   
                 lab = '0 {} {} {} {}\n'.format(abs(box_centre_x/tile_width), 
                 abs(box_centre_y/tile_height), 
                 abs(box_width/tile_width), 
@@ -122,6 +122,5 @@ def generate_augmentations(image_path, label_path, output_dir, image_id, n): # i
         
             file.write(lab)
         
-        #print(lab)
         file.close()
     plt.show()

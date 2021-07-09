@@ -7,6 +7,7 @@ import json
 from PIL import Image
 
 def read_json_coords(label):
+    '''Read a json file containing bounding boxes into coordinate arrays '''
     coords, centres = [], []
     
     for object in label['shapes']:
@@ -21,6 +22,7 @@ def read_json_coords(label):
     return coords_array, centres_array
 
 def get_bbox_info_aerial(box_path):
+    '''Convert json bounding box file to correct image format'''
     with open(box_path, 'r') as f:
         label = json.load(f)
         coords, centres = read_json_coords(label)
@@ -101,7 +103,6 @@ def save_aerial_files(image_path, box_path, output_dir, input_name):
             ax.set_title(title)
 
             # write label to .txt file
-            ## 0 means first object i.e. whale
             
             if info[k]['name'] == 'whale' : 
                 lab = '0 {} {} {} {}\n'.format(abs(box_centre_x/width), abs(box_centre_y/height), abs(box_width/width), abs(box_height/height))

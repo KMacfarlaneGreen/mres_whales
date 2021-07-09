@@ -32,7 +32,6 @@ def plot_rgb_boxes(file_path, box_path, array_rgb):
     with open(box_path, 'r') as f:
         label = json.load(f)
         geotif_rgb = rasterio.open(file_path)
-        #array_rgb = tiff.imread(file_path)
         PIL_image = Image.fromarray(array_rgb)
         image = PIL_image
         # create figure
