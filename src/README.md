@@ -9,7 +9,7 @@ src
 |
 ├── preprocessing  <- Scripts to turn raw data into clean data and features for modeling
 │
-├── models         <- Instructions to use trained models to make
+├── models         <- Instructions to train models and use trained models to make
 │                     predictions
 └── tests          <- Scripts for unit tests of  functions
 ```
