@@ -1,4 +1,4 @@
-# Running pretrained YOLOv5s models
+# Running YOLOv5s models
 
 Model weights are stored in the 'weights' folder. In order to run model inference first: 
 
