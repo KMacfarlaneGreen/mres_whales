@@ -18,6 +18,8 @@ Navigate to the directory and install the conda environment:
 
 ```
 cd mres_whales
+
+make env
 ```
 
 ## Requirements
